@@ -53,6 +53,13 @@ app.post("/api/auth/register", async (req, res) => {
   }
 });
 
+app.get("/api/auth/google/config", (_req, res) => {
+  res.json({
+    enabled: Boolean(config.googleClientId),
+    clientId: config.googleClientId || "",
+  });
+});
+
 app.post("/api/auth/google/register", async (req, res) => {
   const { credential, phone, dateOfBirth, gestationalAge, address } = req.body;
 
@@ -64,9 +71,15 @@ app.post("/api/auth/google/register", async (req, res) => {
     return res.status(400).json({ message: "Token Google tidak ditemukan." });
   }
 
-  const googleResponse = await fetch(
-    `https://oauth2.googleapis.com/tokeninfo?id_token=${encodeURIComponent(credential)}`,
-  );
+  let googleResponse;
+
+  try {
+    googleResponse = await fetch(
+      `https://oauth2.googleapis.com/tokeninfo?id_token=${encodeURIComponent(credential)}`,
+    );
+  } catch {
+    return res.status(503).json({ message: "Tidak bisa menghubungi Google. Periksa koneksi internet server." });
+  }
 
   if (!googleResponse.ok) {
     return res.status(401).json({ message: "Token Google tidak valid." });

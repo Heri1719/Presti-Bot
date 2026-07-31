@@ -16,7 +16,7 @@ npm install
 cp .env.example .env
 ```
 
-Opsional untuk daftar dengan Google: isi `GOOGLE_CLIENT_ID` dan `VITE_GOOGLE_CLIENT_ID` di `.env` memakai OAuth Client ID dari Google Cloud Console, lalu restart backend dan frontend.
+Opsional untuk daftar dengan Google: isi `GOOGLE_CLIENT_ID` di `.env` memakai OAuth Client ID dari Google Cloud Console. Tambahkan `http://localhost:5173` ke Authorized JavaScript origins, lalu restart backend.
 
 3. Siapkan Postgres khusus proyek:
 

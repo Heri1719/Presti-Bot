@@ -232,29 +232,25 @@ button {
   min-height: 44px;
 }
 
-.google-fallback-button {
+.google-config-note {
   width: 100%;
-  min-height: 46px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
+  display: grid;
+  gap: 4px;
   border: 1px solid var(--border);
   border-radius: 8px;
-  background: white;
-  color: #1f2937;
-  font-weight: 800;
+  background: #f8fafc;
+  color: #334155;
+  padding: 12px 13px;
 }
 
-.google-fallback-button span {
-  display: grid;
-  place-items: center;
-  width: 24px;
-  height: 24px;
-  border-radius: 999px;
-  color: #1a73e8;
-  border: 1px solid var(--border);
-  font-weight: 900;
+.google-config-note strong {
+  color: var(--primary);
+}
+
+.google-config-note span {
+  color: var(--muted);
+  line-height: 1.45;
+  font-size: 0.9rem;
 }
 
 .demo-logins {

@@ -20,7 +20,6 @@ import {
 import "./styles.css";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:4000/api";
-const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID || "";
 
 const riskCopy = {
   emergency: { label: "Darurat", className: "risk-emergency" },
@@ -224,6 +223,7 @@ function AuthScreen({ api, onAuth, initialMessage = "" }) {
   const [mode, setMode] = useState("login");
   const googleButtonRef = useRef(null);
   const formRef = useRef(null);
+  const [googleConfig, setGoogleConfig] = useState({ checked: false, enabled: false, clientId: "" });
   const [form, setForm] = useState({
     name: "",
     email: "sari@example.com",
@@ -244,7 +244,13 @@ function AuthScreen({ api, onAuth, initialMessage = "" }) {
   }, [form]);
 
   useEffect(() => {
-    if (mode !== "register" || !GOOGLE_CLIENT_ID || !googleButtonRef.current) {
+    api.request("/auth/google/config")
+      .then((data) => setGoogleConfig({ checked: true, enabled: data.enabled, clientId: data.clientId || "" }))
+      .catch(() => setGoogleConfig({ checked: true, enabled: false, clientId: "" }));
+  }, [api]);
+
+  useEffect(() => {
+    if (mode !== "register" || !googleConfig.enabled || !googleConfig.clientId || !googleButtonRef.current) {
       return;
     }
 
@@ -255,7 +261,7 @@ function AuthScreen({ api, onAuth, initialMessage = "" }) {
         if (cancelled || !googleButtonRef.current) return;
         googleButtonRef.current.innerHTML = "";
         window.google.accounts.id.initialize({
-          client_id: GOOGLE_CLIENT_ID,
+          client_id: googleConfig.clientId,
           callback: async ({ credential }) => {
             setError("");
             try {
@@ -289,7 +295,7 @@ function AuthScreen({ api, onAuth, initialMessage = "" }) {
     return () => {
       cancelled = true;
     };
-  }, [api, mode, onAuth]);
+  }, [api, googleConfig.clientId, googleConfig.enabled, mode, onAuth]);
 
   async function submit(event) {
     event.preventDefault();
@@ -364,16 +370,13 @@ function AuthScreen({ api, onAuth, initialMessage = "" }) {
           {mode === "register" && (
             <>
               <div className="auth-divider"><span>atau</span></div>
-              {GOOGLE_CLIENT_ID ? (
+              {googleConfig.enabled ? (
                 <div className="google-button-slot" ref={googleButtonRef} />
               ) : (
-                <button
-                  className="google-fallback-button"
-                  type="button"
-                  onClick={() => setError("Isi GOOGLE_CLIENT_ID dan VITE_GOOGLE_CLIENT_ID di file .env untuk mengaktifkan daftar dengan Google.")}
-                >
-                  <span>G</span> Daftar dengan Google
-                </button>
+                <div className="google-config-note">
+                  <strong>Daftar dengan Google belum aktif</strong>
+                  <span>Isi `GOOGLE_CLIENT_ID` di `.env`, tambahkan origin `http://localhost:5173` di Google Cloud, lalu restart backend.</span>
+                </div>
               )}
             </>
           )}

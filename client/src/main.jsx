@@ -355,7 +355,7 @@ function AuthScreen({ api, onAuth, initialMessage = "" }) {
             </>
           )}
           <Field label="Email" type="email" value={form.email} onChange={(email) => setForm({ ...form, email })} />
-          <Field label="Password" type="password" value={form.password} onChange={(password) => setForm({ ...form, password })} />
+          <Field label={mode === "register" ? "Password (buat password)" : "Password"} type="password" value={form.password} onChange={(password) => setForm({ ...form, password })} />
           {mode === "register" && (
             <>
               <Field label="Tanggal lahir" type="date" value={form.dateOfBirth} onChange={(dateOfBirth) => setForm({ ...form, dateOfBirth })} />

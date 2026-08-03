@@ -232,27 +232,6 @@ button {
   min-height: 44px;
 }
 
-.google-config-note {
-  width: 100%;
-  display: grid;
-  gap: 4px;
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  background: #f8fafc;
-  color: #334155;
-  padding: 12px 13px;
-}
-
-.google-config-note strong {
-  color: var(--primary);
-}
-
-.google-config-note span {
-  color: var(--muted);
-  line-height: 1.45;
-  font-size: 0.9rem;
-}
-
 .demo-logins {
   margin-top: 18px;
   display: grid;

@@ -367,17 +367,10 @@ function AuthScreen({ api, onAuth, initialMessage = "" }) {
           <button className="primary-button" type="submit">
             {mode === "login" ? "Masuk ke PrestiBot" : "Buat akun"}
           </button>
-          {mode === "register" && (
+          {mode === "register" && googleConfig.enabled && (
             <>
               <div className="auth-divider"><span>atau</span></div>
-              {googleConfig.enabled ? (
-                <div className="google-button-slot" ref={googleButtonRef} />
-              ) : (
-                <div className="google-config-note">
-                  <strong>Daftar dengan Google belum aktif</strong>
-                  <span>Isi `GOOGLE_CLIENT_ID` di `.env`, tambahkan origin `http://localhost:5173` di Google Cloud, lalu restart backend.</span>
-                </div>
-              )}
+              <div className="google-button-slot" ref={googleButtonRef} />
             </>
           )}
         </form>

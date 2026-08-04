@@ -33,6 +33,29 @@ npm run dev
 
 Frontend berjalan di `http://localhost:5173`, backend di `http://localhost:4000`.
 
+## Deploy ke Vercel
+
+Project ini sudah disiapkan untuk Vercel:
+
+- Frontend dibuild dari workspace `client`.
+- Backend Express dijalankan sebagai Serverless Function di folder `api`.
+- Route frontend otomatis memakai `/api` saat production.
+
+Environment variables yang wajib dibuat di Vercel:
+
+```env
+DATABASE_URL=postgres-cloud-url
+JWT_SECRET=secret-produksi-yang-kuat
+```
+
+Opsional:
+
+```env
+GOOGLE_CLIENT_ID=oauth-client-id-google
+```
+
+Gunakan Postgres cloud seperti Neon, Supabase, atau Vercel Postgres. Database lokal `localhost:55432` tidak bisa diakses oleh Vercel.
+
 ## Akun Demo
 
 - Ibu hamil: `sari@example.com` / `password123`

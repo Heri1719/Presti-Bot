@@ -215,7 +215,7 @@ app.post("/api/screening/complete", requireAuth, requireRole("mother"), async (r
   }
 
   const session = await query(
-    `select ss.*
+    `select ss.*, pm.address
      from screening_sessions ss
      join pregnant_mothers pm on pm.id = ss.mother_id
      where ss.id = $1 and pm.user_id = $2`,
@@ -226,7 +226,7 @@ app.post("/api/screening/complete", requireAuth, requireRole("mother"), async (r
     return res.status(404).json({ message: "Sesi skrining tidak ditemukan." });
   }
 
-  const assessment = assessRisk(answers);
+  const assessment = assessRisk({ ...answers, address: session.rows[0].address });
 
   const savedAssessment = await withTransaction(async (client) => {
     await client.query(

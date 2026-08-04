@@ -18,6 +18,71 @@ const factorLabels = {
   age_risk: "usia ibu berisiko",
 };
 
+const referralFacilities = [
+  {
+    keywords: ["asahan", "kisaran", "pulo bandring", "air batu", "tanjung balai", "tanjungbalai"],
+    name: "RSUD H. Abdul Manan Simatupang Kisaran",
+    address: "Jl. Cipto 13, Kisaran Kota, Kec. Kota Kisaran Barat, Kabupaten Asahan",
+    phone: "0821-8461-4936",
+  },
+];
+
+function findReferral(address = "") {
+  const normalizedAddress = address.toLowerCase();
+  const facility = referralFacilities.find((item) =>
+    item.keywords.some((keyword) => normalizedAddress.includes(keyword)),
+  );
+
+  if (facility) {
+    return {
+      label: `Rujukan terdekat berdasarkan alamat Ibu: ${facility.name}`,
+      contact: `Alamat: ${facility.address}. Telepon: ${facility.phone}.`,
+    };
+  }
+
+  return {
+    label: "Rujukan terdekat: IGD rumah sakit atau puskesmas PONED terdekat dari lokasi Ibu.",
+    contact: "Hubungi PSC 119 untuk bantuan ambulans/rujukan medis. Jika 119 tidak tersambung, hubungi 112.",
+  };
+}
+
+function buildRecommendation(category, address = "") {
+  const referral = findReferral(address);
+
+  if (category === "emergency") {
+    return [
+      "Segera berangkat ke IGD sekarang. Jangan menunggu jadwal kontrol berikutnya dan jangan menyetir sendiri.",
+      referral.label,
+      referral.contact,
+      "Minta keluarga atau bidan mendampingi, bawa buku KIA/BPJS/hasil pemeriksaan, dan posisikan Ibu miring kiri bila lemas atau setelah kejang.",
+    ].join("\n");
+  }
+
+  if (category === "high") {
+    return [
+      "Hubungi bidan atau dokter hari ini untuk evaluasi tekanan darah, protein urine, dan tanda bahaya.",
+      referral.label,
+      referral.contact,
+      "Bila muncul kejang, sakit kepala berat, pandangan kabur, nyeri ulu hati, sesak, atau tekanan darah mencapai 160/110, langsung ke IGD.",
+    ].join("\n");
+  }
+
+  if (category === "moderate") {
+    return [
+      "Jadwalkan pemeriksaan dalam 24-48 jam dan ulangi pengukuran tekanan darah dengan alat tervalidasi.",
+      "Catat hasil tekanan darah, usia kehamilan, keluhan, dan obat yang sedang diminum.",
+      "Jika keluhan memburuk atau ada tanda bahaya, gunakan rujukan: " + referral.label.replace("Rujukan terdekat berdasarkan alamat Ibu: ", ""),
+      referral.contact,
+    ].join("\n");
+  }
+
+  return [
+    "Lanjutkan ANC rutin dan catat tekanan darah secara berkala.",
+    "Hubungi bidan bila muncul sakit kepala berat, pandangan kabur, bengkak wajah/tangan, nyeri ulu hati, sesak, atau gerak janin berkurang.",
+    "Untuk kondisi darurat, hubungi PSC 119 atau datang ke IGD terdekat.",
+  ].join("\n");
+}
+
 export function assessRisk(payload) {
   const systolic = Number(payload.systolic || 0);
   const diastolic = Number(payload.diastolic || 0);
@@ -26,6 +91,7 @@ export function assessRisk(payload) {
   const riskFactors = payload.riskFactors || [];
   const ancStatus = payload.ancStatus || "unknown";
   const customAnswers = payload.customAnswers || [];
+  const address = payload.address || "";
   const reasons = [];
 
   if (gestationalAge >= 20) {
@@ -40,8 +106,7 @@ export function assessRisk(payload) {
     return {
       riskScore: 0.96,
       riskCategory: "emergency",
-      triageRecommendation:
-        "Segera ke IGD atau fasilitas kesehatan rujukan. Jangan menunggu jadwal kontrol berikutnya.",
+      triageRecommendation: buildRecommendation("emergency", address),
       explanation: `Tanda bahaya terdeteksi: ${danger.join(", ")}.`,
     };
   }
@@ -97,8 +162,7 @@ export function assessRisk(payload) {
     return {
       riskScore: roundedScore,
       riskCategory: "high",
-      triageRecommendation:
-        "Hubungi bidan/dokter hari ini untuk evaluasi tekanan darah, protein urine, dan kemungkinan rujukan.",
+      triageRecommendation: buildRecommendation("high", address),
       explanation: reasons.length
         ? `Risiko tinggi karena ${reasons.join("; ")}.`
         : "Risiko tinggi berdasarkan kombinasi input skrining.",
@@ -109,8 +173,7 @@ export function assessRisk(payload) {
     return {
       riskScore: roundedScore,
       riskCategory: "moderate",
-      triageRecommendation:
-        "Jadwalkan konsultasi dalam 24-48 jam dan ulangi pengukuran tekanan darah dengan alat tervalidasi.",
+      triageRecommendation: buildRecommendation("moderate", address),
       explanation: reasons.length
         ? `Perlu pemantauan karena ${reasons.join("; ")}.`
         : "Perlu pemantauan berdasarkan input skrining.",
@@ -120,8 +183,7 @@ export function assessRisk(payload) {
   return {
     riskScore: roundedScore,
     riskCategory: "low",
-    triageRecommendation:
-      "Lanjutkan ANC rutin, catat tekanan darah, dan ulangi skrining bila muncul tanda bahaya.",
+    triageRecommendation: buildRecommendation("low", address),
     explanation: "Belum ada tanda risiko berat dari data yang diinput.",
   };
 }

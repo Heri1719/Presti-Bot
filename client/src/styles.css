@@ -381,6 +381,7 @@ button {
   padding: 13px 15px;
   border-radius: 8px;
   line-height: 1.55;
+  white-space: pre-line;
 }
 
 .chat-bubble.bot {
@@ -509,6 +510,11 @@ button {
   border-radius: 8px;
   padding: 14px;
   background: white;
+}
+
+.triage-box p,
+.clinical-note p {
+  white-space: pre-line;
 }
 
 .risk-emergency {
